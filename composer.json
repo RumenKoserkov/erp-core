@@ -1,0 +1,11 @@
+{
+    "name": "rumen/warehouse-erp",
+    "description": "Warehouse ERP system built with PHP 8, OOP, MVC, PDO and MySQL",
+    "type": "project",
+    "autoload": {
+        "psr-4": {
+            "App\\": "app/"
+        }
+    },
+    "require": {}
+}
