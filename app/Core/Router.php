@@ -6,95 +6,41 @@ namespace App\Core;
 
 class Router
 {
-    private array $routes;
+    private array $routes = [];
 
-    public function __construct(array $routes)
+    public function get(string $uri, array $action): void
     {
-        $this->routes = $routes;
+        $this->add('GET', $uri, $action);
     }
 
-    public function dispatch(string $uri): void
+    public function post(string $uri, array $action): void
     {
-        $requestMethod = $_SERVER['REQUEST_METHOD'];
+        $this->add('POST', $uri, $action);
+    }
 
-        foreach ($this->routes as $route) {
-            if ($route['uri'] === $uri && $route['method'] === $requestMethod) {
-                $controllerClass = $route['action'][0];
-                $method = $route['action'][1];
+    public function add(string $method, string $uri, array $action): void
+    {
+        $this->routes[strtoupper($method)][$uri] = $action;
+    }
 
-                $controller = new $controllerClass();
+    public function dispatch(string $requestUri, string $requestMethod): void
+    {
+        $path = parse_url($requestUri, PHP_URL_PATH);
 
-                $controller->$method();
+        $requestMethod = strtoupper($requestMethod);
 
-                return;
-            }
+        if (!isset($this->routes[$requestMethod][$path])) {
+            http_response_code(404);
+
+            echo '404 - Page not found';
+
+            return;
         }
 
-        http_response_code(404);
+        [$controllerClass, $method] = $this->routes[$requestMethod][$path];
 
-        echo '404 - Page not found';
+        $controller = new $controllerClass();
+
+        $controller->$method();
     }
 }
-
-
-/*
-|--------------------------------------------------------------------------
-| Router
-|--------------------------------------------------------------------------
-|
-| Router-ът е една от основните части на MVC архитектурата.
-|
-| Неговата задача е да приеме текущата HTTP заявка (Request),
-| да сравни URL адреса и HTTP метода с всички дефинирани маршрути
-| (routes) и да определи кой Controller и кой метод трябва да
-| обработят заявката.
-|
-| Основни отговорности:
-| - Съхранява всички дефинирани маршрути.
-| - Получава текущия URL и HTTP метода.
-| - Търси съвпадение между заявката и route-овете.
-| - Създава необходимия Controller.
-| - Извиква съответния метод (Action).
-| - Връща 404, ако няма намерен маршрут.
-|
-| Поток на изпълнение:
-|
-| Browser Request
-|        ↓
-| public/index.php
-|        ↓
-| routes/web.php
-|        ↓
-| Router
-|        ↓
-| Сравнява URI + HTTP Method
-|        ↓
-| Създава Controller
-|        ↓
-| Извиква Action
-|        ↓
-| Controller
-|        ↓
-| View
-|        ↓
-| HTML Response
-|
-| Пример:
-|
-| GET /dashboard
-|        ↓
-| DashboardController::index()
-|
-| GET /products
-|        ↓
-| ProductController::index()
-|
-| GET /sales
-|        ↓
-| SaleController::index()
-|
-| Router-ът не съдържа бизнес логика и не работи с базата данни.
-| Единствената му задача е да насочи заявката към правилния
-| Controller.
-|
-*/

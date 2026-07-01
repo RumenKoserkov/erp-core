@@ -1,22 +1,39 @@
 <?php
 
-declare(strict_types=1);
-
+use App\Controllers\AuthController;
 use App\Controllers\DashboardController;
 
 return [
     [
         'method' => 'GET',
         'uri' => '/',
-        'action' => [DashboardController::class, 'index'],
+        'action' => [DashboardController::class, 'index']
     ],
-    [
+
+    [ 
         'method' => 'GET',
         'uri' => '/dashboard',
-        'action' => [DashboardController::class, 'index'],
+        'action' => [DashboardController::class, 'index']
+    ],
+
+    [
+        'method' => 'GET',
+        'uri' => '/login',
+        'action' => [AuthController::class, 'showLogin']
+    ],
+
+    [
+        'method' => 'POST',
+        'uri' => '/login',
+        'action' => [AuthController::class, 'login']
+    ],
+
+    [
+        'method' => 'POST',
+        'uri' => '/logout',
+        'action' => [AuthController::class, 'logout']
     ],
 ];
-
 
 
 /*
