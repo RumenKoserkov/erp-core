@@ -42,8 +42,7 @@ class Router
         $requestMethod = strtoupper($requestMethod);
 
         if (!isset($this->routes[$requestMethod][$path])) {
-            http_response_code(404);
-            echo '404 - Page not found';
+            $this->notFound();
             return;
         }
 
@@ -88,5 +87,14 @@ class Router
 
             $middleware->handle($parameters);
         }
+    }
+
+    private function notFound(): void
+    {
+        http_response_code(404);
+
+        View::render('errors/404', [
+            'title' => '404 - Page not found'
+        ]);
     }
 }
