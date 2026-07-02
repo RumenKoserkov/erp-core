@@ -8,7 +8,7 @@ use App\Services\AuthService;
 
 class AuthMiddleware
 {
-    public function handle(): void
+    public function handle(array $parameters = []): void
     {
         $authService = new AuthService();
 

@@ -112,6 +112,23 @@ class AuthService
         return $user['role_slug'] === $roleSlug;
     }
 
+    public function hasAnyRole(array $roleSlugs): bool
+    {
+        $user = $this->user();
+
+        if ($user === null) {
+            return false;
+        }
+
+        foreach ($roleSlugs as $roleSlug) {
+            if ($user['role_slug'] === $roleSlug) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     private function startSession(): void
     {
         if (session_status() === PHP_SESSION_NONE) {

@@ -8,13 +8,13 @@ return [
         'method' => 'GET',
         'uri' => '/',
         'action' => [DashboardController::class, 'index'],
-        'middleware' => ['auth'],
+        'middleware' => ['auth', 'role:administrator,manager,employee'],
     ],
     [
         'method' => 'GET',
         'uri' => '/dashboard',
         'action' => [DashboardController::class, 'index'],
-        'middleware' => ['auth'],
+        'middleware' => ['auth', 'role:administrator,manager,employee'],
     ],
     [
         'method' => 'GET',
@@ -35,7 +35,6 @@ return [
         'middleware' => ['auth'],
     ],
 ];
-
 /*
 |--------------------------------------------------------------------------
 | Web Routes

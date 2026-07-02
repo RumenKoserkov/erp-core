@@ -6,6 +6,7 @@ namespace App\Core;
 
 use App\Middleware\AuthMiddleware;
 use App\Middleware\GuestMiddleware;
+use App\Middleware\RoleMiddleware;
 
 class Router
 {
@@ -14,6 +15,7 @@ class Router
     private array $middlewareMap = [
         'auth' => AuthMiddleware::class,
         'guest' => GuestMiddleware::class,
+        'role' => RoleMiddleware::class,
     ];
 
     public function get(string $uri, array $action, array $middleware = []): void
@@ -58,7 +60,24 @@ class Router
 
     private function runMiddleware(array $middlewares): void
     {
-        foreach ($middlewares as $middlewareName) {
+        foreach ($middlewares as $middlewareDefinition) {
+            $middlewareName = $middlewareDefinition;
+            $parameters = [];
+
+            if (str_contains($middlewareDefinition, ':')) {
+                [$middlewareName, $parameterString] = explode(':', $middlewareDefinition, 2);
+
+                $rawParameters = explode(',', $parameterString);
+
+                foreach ($rawParameters as $rawParameter) {
+                    $parameter = trim($rawParameter);
+
+                    if ($parameter !== '') {
+                        $parameters[] = $parameter;
+                    }
+                }
+            }
+
             if (!isset($this->middlewareMap[$middlewareName])) {
                 throw new \Exception("Middleware {$middlewareName} is not registered.");
             }
@@ -67,7 +86,7 @@ class Router
 
             $middleware = new $middlewareClass();
 
-            $middleware->handle();
+            $middleware->handle($parameters);
         }
     }
 }
