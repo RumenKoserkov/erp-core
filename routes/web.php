@@ -3,6 +3,7 @@
 use App\Controllers\AuthController;
 use App\Controllers\DashboardController;
 use App\Controllers\UserController;
+use App\Controllers\ClientController;
 
 return [
     [
@@ -75,6 +76,45 @@ return [
         'uri' => '/users/deactivate',
         'action' => [UserController::class, 'deactivate'],
         'middleware' => ['auth', 'role:administrator'],
+    ],
+
+    // Clients CRUD
+
+    [
+        'method' => 'GET',
+        'uri' => '/clients',
+        'action' => [ClientController::class, 'index'],
+        'middleware' => ['auth', 'role:administrator,manager'],
+    ],
+    [
+        'method' => 'GET',
+        'uri' => '/clients/create',
+        'action' => [ClientController::class, 'create'],
+        'middleware' => ['auth', 'role:administrator,manager'],
+    ],
+    [
+        'method' => 'POST',
+        'uri' => '/clients/store',
+        'action' => [ClientController::class, 'store'],
+        'middleware' => ['auth', 'role:administrator,manager'],
+    ],
+    [
+        'method' => 'GET',
+        'uri' => '/clients/edit',
+        'action' => [ClientController::class, 'edit'],
+        'middleware' => ['auth', 'role:administrator,manager'],
+    ],
+    [
+        'method' => 'POST',
+        'uri' => '/clients/update',
+        'action' => [ClientController::class, 'update'],
+        'middleware' => ['auth', 'role:administrator,manager'],
+    ],
+    [
+        'method' => 'POST',
+        'uri' => '/clients/deactivate',
+        'action' => [ClientController::class, 'deactivate'],
+        'middleware' => ['auth', 'role:administrator,manager'],
     ],
 ];
 /*
