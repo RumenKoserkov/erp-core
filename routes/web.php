@@ -4,6 +4,7 @@ use App\Controllers\AuthController;
 use App\Controllers\DashboardController;
 use App\Controllers\UserController;
 use App\Controllers\ClientController;
+use App\Controllers\SupplierController;
 
 return [
     [
@@ -114,6 +115,44 @@ return [
         'method' => 'POST',
         'uri' => '/clients/deactivate',
         'action' => [ClientController::class, 'deactivate'],
+        'middleware' => ['auth', 'role:administrator,manager'],
+    ],
+
+    // Supplier CRUD
+    [
+        'method' => 'GET',
+        'uri' => '/suppliers',
+        'action' => [SupplierController::class, 'index'],
+        'middleware' => ['auth', 'role:administrator,manager'],
+    ],
+    [
+        'method' => 'GET',
+        'uri' => '/suppliers/create',
+        'action' => [SupplierController::class, 'create'],
+        'middleware' => ['auth', 'role:administrator,manager'],
+    ],
+    [
+        'method' => 'POST',
+        'uri' => '/suppliers/store',
+        'action' => [SupplierController::class, 'store'],
+        'middleware' => ['auth', 'role:administrator,manager'],
+    ],
+    [
+        'method' => 'GET',
+        'uri' => '/suppliers/edit',
+        'action' => [SupplierController::class, 'edit'],
+        'middleware' => ['auth', 'role:administrator,manager'],
+    ],
+    [
+        'method' => 'POST',
+        'uri' => '/suppliers/update',
+        'action' => [SupplierController::class, 'update'],
+        'middleware' => ['auth', 'role:administrator,manager'],
+    ],
+    [
+        'method' => 'POST',
+        'uri' => '/suppliers/deactivate',
+        'action' => [SupplierController::class, 'deactivate'],
         'middleware' => ['auth', 'role:administrator,manager'],
     ],
 ];
