@@ -5,6 +5,7 @@ use App\Controllers\DashboardController;
 use App\Controllers\UserController;
 use App\Controllers\ClientController;
 use App\Controllers\SupplierController;
+use App\Controllers\CategoryController;
 
 return [
     [
@@ -153,6 +154,45 @@ return [
         'method' => 'POST',
         'uri' => '/suppliers/deactivate',
         'action' => [SupplierController::class, 'deactivate'],
+        'middleware' => ['auth', 'role:administrator,manager'],
+    ],
+
+    // Category CRUD
+
+    [
+        'method' => 'GET',
+        'uri' => '/categories',
+        'action' => [CategoryController::class, 'index'],
+        'middleware' => ['auth', 'role:administrator,manager'],
+    ],
+    [
+        'method' => 'GET',
+        'uri' => '/categories/create',
+        'action' => [CategoryController::class, 'create'],
+        'middleware' => ['auth', 'role:administrator,manager'],
+    ],
+    [
+        'method' => 'POST',
+        'uri' => '/categories/store',
+        'action' => [CategoryController::class, 'store'],
+        'middleware' => ['auth', 'role:administrator,manager'],
+    ],
+    [
+        'method' => 'GET',
+        'uri' => '/categories/edit',
+        'action' => [CategoryController::class, 'edit'],
+        'middleware' => ['auth', 'role:administrator,manager'],
+    ],
+    [
+        'method' => 'POST',
+        'uri' => '/categories/update',
+        'action' => [CategoryController::class, 'update'],
+        'middleware' => ['auth', 'role:administrator,manager'],
+    ],
+    [
+        'method' => 'POST',
+        'uri' => '/categories/deactivate',
+        'action' => [CategoryController::class, 'deactivate'],
         'middleware' => ['auth', 'role:administrator,manager'],
     ],
 ];

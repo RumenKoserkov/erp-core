@@ -89,6 +89,12 @@ if (isset($title)) {
                         </li>
 
                         <li class="nav-item">
+                            <a href="/categories" class="nav-link">
+                                Categories
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
                             <a href="/purchases" class="nav-link">
                                 Purchases
                             </a>
