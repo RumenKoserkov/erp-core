@@ -25,7 +25,7 @@ if (isset($product)) {
                     </div>
                 <?php endif; ?>
 
-                <form action="<?= htmlspecialchars($action) ?>" method="POST">
+                <form action="<?= htmlspecialchars($action) ?>" method="POST" enctype="multipart/form-data">
 
                     <?php if ($isEdit): ?>
                         <input
@@ -184,6 +184,32 @@ if (isset($product)) {
                             name="description"
                             class="form-control"
                             rows="4"><?= htmlspecialchars((string)$old['description']) ?></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">
+                            Product Image
+                        </label>
+
+                        <?php if (isset($product) && !empty($product['image_path'])): ?>
+                            <div class="mb-2">
+                                <img
+                                    src="<?= htmlspecialchars($product['image_path']) ?>"
+                                    alt="Product image"
+                                    style="max-width: 120px; max-height: 120px;"
+                                    class="img-thumbnail">
+                            </div>
+                        <?php endif; ?>
+
+                        <input
+                            type="file"
+                            name="image"
+                            class="form-control"
+                            accept=".jpg,.jpeg,.png,.webp">
+
+                        <div class="form-text">
+                            Allowed formats: jpg, jpeg, png, webp. Max size: 2MB.
+                        </div>
                     </div>
 
                     <div class="form-check mb-3">

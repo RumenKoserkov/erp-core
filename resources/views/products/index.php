@@ -32,6 +32,7 @@
                 <table class="table table-striped table-hover align-middle mb-0">
                     <thead>
                         <tr>
+                            <th>Image</th>
                             <th>Code</th>
                             <th>Barcode</th>
                             <th>Name</th>
@@ -49,6 +50,18 @@
                     <tbody>
                         <?php foreach ($products as $product): ?>
                             <tr>
+
+                                <td>
+                                    <?php if (!empty($product['image_path'])): ?>
+                                        <img
+                                            src="<?= htmlspecialchars($product['image_path']) ?>"
+                                            alt="Product image"
+                                            style="width: 50px; height: 50px; object-fit: cover;"
+                                            class="rounded border">
+                                    <?php else: ?>
+                                        <span class="text-muted">No image</span>
+                                    <?php endif; ?>
+                                </td>
 
                                 <td>
                                     <span class="badge text-bg-secondary">

@@ -194,6 +194,7 @@ class Product extends Model
                 selling_price = ?,
                 min_stock = ?,
                 description = ?,
+                image_path = ?,
                 is_active = ?
             WHERE id = ?
             AND company_id = ?
@@ -209,6 +210,7 @@ class Product extends Model
             $data['selling_price'],
             $data['min_stock'],
             $data['description'],
+            $data['image_path'],
             $data['is_active'],
             $id,
             $data['company_id'],

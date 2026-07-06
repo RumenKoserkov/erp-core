@@ -11,6 +11,7 @@ use App\Models\Category;
 use App\Models\Product;
 use App\Models\Supplier;
 use App\Services\AuthService;
+use App\Services\ProductImageService;
 
 class ProductController extends Controller
 {
@@ -18,6 +19,7 @@ class ProductController extends Controller
     private Category $categoryModel;
     private Supplier $supplierModel;
     private AuthService $authService;
+    private ProductImageService $productImageService;
 
     public function __construct()
     {
@@ -25,6 +27,7 @@ class ProductController extends Controller
         $this->categoryModel = new Category();
         $this->supplierModel = new Supplier();
         $this->authService = new AuthService();
+        $this->productImageService = new ProductImageService();
     }
 
     public function index(): void
@@ -132,11 +135,38 @@ class ProductController extends Controller
             return;
         }
 
+        $imageFile = [];
+
+        if (isset($_FILES['image'])) {
+            $imageFile = $_FILES['image'];
+        }
+
+        $imageResult = $this->productImageService->upload($imageFile);
+
+        if (!$imageResult['success']) {
+            $this->view('products/create', [
+                'title' => 'Create Product',
+                'categories' => $this->categoryModel->activeByCompany(
+                    (int)$currentUser['company_id']
+                ),
+                'suppliers' => $this->supplierModel->activeByCompany(
+                    (int)$currentUser['company_id']
+                ),
+                'errors' => [$imageResult['error']],
+                'old' => $data,
+                'units' => $this->units(),
+            ]);
+
+            return;
+        }
+
         $data['company_id'] = (int)$currentUser['company_id'];
+
         $data['internal_code'] = $this->productModel->generateNextInternalCode(
             (int)$currentUser['company_id']
         );
-        $data['image_path'] = null;
+
+        $data['image_path'] = $imageResult['path'];
 
         $this->productModel->create($data);
 
@@ -261,7 +291,34 @@ class ProductController extends Controller
             return;
         }
 
+        $imageFile = [];
+
+        if (isset($_FILES['image'])) {
+            $imageFile = $_FILES['image'];
+        }
+
+        $imageResult = $this->productImageService->upload($imageFile);
+
+        if (!$imageResult['success']) {
+            $this->view('products/edit', [
+                'title' => 'Edit Product',
+                'product' => $product,
+                'categories' => $this->categoryModel->activeByCompany((int)$currentUser['company_id']),
+                'suppliers' => $this->supplierModel->activeByCompany((int)$currentUser['company_id']),
+                'errors' => [$imageResult['error']],
+                'old' => $data,
+                'units' => $this->units(),
+            ]);
+
+            return;
+        }
+
         $data['company_id'] = (int)$currentUser['company_id'];
+        $data['image_path'] = $product['image_path'];
+
+        if ($imageResult['path'] !== null) {
+            $data['image_path'] = $imageResult['path'];
+        }
 
         $this->productModel->update($id, $data);
 
@@ -311,22 +368,68 @@ class ProductController extends Controller
             $supplierId = (int)$_POST['supplier_id'];
         }
 
-        $barcode = trim((string)($_POST['barcode'] ?? ''));
+        $barcode = '';
+
+        if (isset($_POST['barcode'])) {
+            $barcode = trim((string)$_POST['barcode']);
+        }
 
         if ($barcode === '') {
             $barcode = null;
         }
 
+        $categoryId = 0;
+
+        if (isset($_POST['category_id'])) {
+            $categoryId = (int)$_POST['category_id'];
+        }
+
+        $name = '';
+
+        if (isset($_POST['name'])) {
+            $name = trim((string)$_POST['name']);
+        }
+
+        $unit = '';
+
+        if (isset($_POST['unit'])) {
+            $unit = trim((string)$_POST['unit']);
+        }
+
+        $purchasePrice = 0.00;
+
+        if (isset($_POST['purchase_price'])) {
+            $purchasePrice = (float)$_POST['purchase_price'];
+        }
+
+        $sellingPrice = 0.00;
+
+        if (isset($_POST['selling_price'])) {
+            $sellingPrice = (float)$_POST['selling_price'];
+        }
+
+        $minStock = 0.00;
+
+        if (isset($_POST['min_stock'])) {
+            $minStock = (float)$_POST['min_stock'];
+        }
+
+        $description = '';
+
+        if (isset($_POST['description'])) {
+            $description = trim((string)$_POST['description']);
+        }
+
         return [
-            'category_id' => (int)($_POST['category_id'] ?? 0),
+            'category_id' => $categoryId,
             'supplier_id' => $supplierId,
             'barcode' => $barcode,
-            'name' => trim((string)($_POST['name'] ?? '')),
-            'unit' => trim((string)($_POST['unit'] ?? '')),
-            'purchase_price' => (float)($_POST['purchase_price'] ?? 0),
-            'selling_price' => (float)($_POST['selling_price'] ?? 0),
-            'min_stock' => (float)($_POST['min_stock'] ?? 0),
-            'description' => trim((string)($_POST['description'] ?? '')),
+            'name' => $name,
+            'unit' => $unit,
+            'purchase_price' => $purchasePrice,
+            'selling_price' => $sellingPrice,
+            'min_stock' => $minStock,
+            'description' => $description,
             'is_active' => isset($_POST['is_active']) ? 1 : 0,
         ];
     }
