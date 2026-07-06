@@ -7,6 +7,7 @@ use App\Controllers\ClientController;
 use App\Controllers\SupplierController;
 use App\Controllers\CategoryController;
 use App\Controllers\WarehouseController;
+use App\Controllers\ProductController;
 
 return [
     [
@@ -233,6 +234,26 @@ return [
         'method' => 'POST',
         'uri' => '/warehouses/deactivate',
         'action' => [WarehouseController::class, 'deactivate'],
+        'middleware' => ['auth', 'role:administrator,manager'],
+    ],
+
+    // Product CRUD
+    [
+        'method' => 'GET',
+        'uri' => '/products',
+        'action' => [ProductController::class, 'index'],
+        'middleware' => ['auth', 'role:administrator,manager'],
+    ],
+    [
+        'method' => 'GET',
+        'uri' => '/products/create',
+        'action' => [ProductController::class, 'create'],
+        'middleware' => ['auth', 'role:administrator,manager'],
+    ],
+    [
+        'method' => 'POST',
+        'uri' => '/products/store',
+        'action' => [ProductController::class, 'store'],
         'middleware' => ['auth', 'role:administrator,manager'],
     ],
 ];

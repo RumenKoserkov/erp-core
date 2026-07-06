@@ -63,7 +63,10 @@ class Supplier extends Model
             LIMIT 1
         ");
 
-        $stmt->execute([$id, $companyId]);
+        $stmt->execute([
+            $id,
+            $companyId,
+        ]);
 
         $supplier = $stmt->fetch();
 
@@ -150,5 +153,20 @@ class Supplier extends Model
             $id,
             $companyId,
         ]);
+    }
+
+    public function activeByCompany(int $companyId): array
+    {
+        $stmt = $this->db->prepare("
+            SELECT id, name, company_name
+            FROM suppliers
+            WHERE company_id = ?
+            AND is_active = 1
+            ORDER BY name ASC
+        ");
+
+        $stmt->execute([$companyId]);
+
+        return $stmt->fetchAll();
     }
 }
