@@ -1,3 +1,15 @@
+<?php
+$isEdit = false;
+$action = '/products/store';
+$buttonText = 'Create Product';
+
+if (isset($product)) {
+    $isEdit = true;
+    $action = '/products/update';
+    $buttonText = 'Update Product';
+}
+?>
+
 <div class="row">
     <div class="col-md-8">
         <div class="card shadow-sm">
@@ -13,7 +25,14 @@
                     </div>
                 <?php endif; ?>
 
-                <form action="/products/store" method="POST">
+                <form action="<?= htmlspecialchars($action) ?>" method="POST">
+
+                    <?php if ($isEdit): ?>
+                        <input
+                            type="hidden"
+                            name="id"
+                            value="<?= htmlspecialchars((string)$product['id']) ?>">
+                    <?php endif; ?>
 
                     <div class="mb-3">
                         <label class="form-label">
@@ -57,7 +76,7 @@
                                 <option
                                     value="<?= htmlspecialchars((string)$category['id']) ?>"
                                     <?php if ((string)$old['category_id'] === (string)$category['id']): ?>
-                                    selected
+                                        selected
                                     <?php endif; ?>>
                                     <?= htmlspecialchars($category['name']) ?>
                                 </option>
@@ -82,7 +101,7 @@
                                 <option
                                     value="<?= htmlspecialchars((string)$supplier['id']) ?>"
                                     <?php if ((string)$old['supplier_id'] === (string)$supplier['id']): ?>
-                                    selected
+                                        selected
                                     <?php endif; ?>>
                                     <?= htmlspecialchars($supplier['name']) ?>
                                 </option>
@@ -104,7 +123,7 @@
                                 <option
                                     value="<?= htmlspecialchars($unit) ?>"
                                     <?php if ((string)$old['unit'] === $unit): ?>
-                                    selected
+                                        selected
                                     <?php endif; ?>>
                                     <?= htmlspecialchars($unit) ?>
                                 </option>
@@ -155,6 +174,7 @@
                         </div>
 
                     </div>
+
                     <div class="mb-3">
                         <label class="form-label">
                             Description
@@ -173,7 +193,7 @@
                             class="form-check-input"
                             value="1"
                             <?php if ((string)$old['is_active'] === '1'): ?>
-                            checked
+                                checked
                             <?php endif; ?>>
 
                         <label class="form-check-label">
@@ -184,7 +204,7 @@
                     <button
                         type="submit"
                         class="btn btn-primary">
-                        Create Product
+                        <?= htmlspecialchars($buttonText) ?>
                     </button>
 
                 </form>

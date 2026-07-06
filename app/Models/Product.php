@@ -76,9 +76,9 @@ class Product extends Model
         return 'PRD-' . str_pad((string)$nextNumber, 6, '0', STR_PAD_LEFT);
     }
 
-    public function barcodeExistsInCompany(string $barcode, int $companyId): bool
+    public function barcodeExistsInCompany(?string $barcode, int $companyId): bool
     {
-        if ($barcode === '') {
+        if ($barcode === null || $barcode === '') {
             return false;
         }
 
@@ -91,6 +91,51 @@ class Product extends Model
         ");
 
         $stmt->execute([$barcode, $companyId]);
+
+        return $stmt->fetch() !== false;
+    }
+
+    public function findByIdAndCompany(int $id, int $companyId): ?array
+    {
+        $stmt = $this->db->prepare("
+            SELECT *
+            FROM products
+            WHERE id = ?
+            AND company_id = ?
+            LIMIT 1
+        ");
+
+        $stmt->execute([$id, $companyId]);
+
+        $product = $stmt->fetch();
+
+        if (!$product) {
+            return null;
+        }
+
+        return $product;
+    }
+
+    public function barcodeExistsInCompanyExceptProduct(?string $barcode, int $companyId, int $productId): bool
+    {
+        if ($barcode === null || $barcode === '') {
+            return false;
+        }
+
+        $stmt = $this->db->prepare("
+            SELECT id
+            FROM products
+            WHERE barcode = ?
+            AND company_id = ?
+            AND id != ?
+            LIMIT 1
+        ");
+
+        $stmt->execute([
+            $barcode,
+            $companyId,
+            $productId,
+        ]);
 
         return $stmt->fetch() !== false;
     }
@@ -132,6 +177,56 @@ class Product extends Model
             $data['description'],
             $data['image_path'],
             $data['is_active'],
+        ]);
+    }
+
+    public function update(int $id, array $data): bool
+    {
+        $stmt = $this->db->prepare("
+            UPDATE products
+            SET
+                category_id = ?,
+                supplier_id = ?,
+                barcode = ?,
+                name = ?,
+                unit = ?,
+                purchase_price = ?,
+                selling_price = ?,
+                min_stock = ?,
+                description = ?,
+                is_active = ?
+            WHERE id = ?
+            AND company_id = ?
+        ");
+
+        return $stmt->execute([
+            $data['category_id'],
+            $data['supplier_id'],
+            $data['barcode'],
+            $data['name'],
+            $data['unit'],
+            $data['purchase_price'],
+            $data['selling_price'],
+            $data['min_stock'],
+            $data['description'],
+            $data['is_active'],
+            $id,
+            $data['company_id'],
+        ]);
+    }
+
+    public function deactivate(int $id, int $companyId): bool
+    {
+        $stmt = $this->db->prepare("
+            UPDATE products
+            SET is_active = 0
+            WHERE id = ?
+            AND company_id = ?
+        ");
+
+        return $stmt->execute([
+            $id,
+            $companyId,
         ]);
     }
 }

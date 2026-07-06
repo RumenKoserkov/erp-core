@@ -256,6 +256,24 @@ return [
         'action' => [ProductController::class, 'store'],
         'middleware' => ['auth', 'role:administrator,manager'],
     ],
+    [
+        'method' => 'GET',
+        'uri' => '/products/edit',
+        'action' => [ProductController::class, 'edit'],
+        'middleware' => ['auth', 'role:administrator,manager'],
+    ],
+    [
+        'method' => 'POST',
+        'uri' => '/products/update',
+        'action' => [ProductController::class, 'update'],
+        'middleware' => ['auth', 'role:administrator,manager'],
+    ],
+    [
+        'method' => 'POST',
+        'uri' => '/products/deactivate',
+        'action' => [ProductController::class, 'deactivate'],
+        'middleware' => ['auth', 'role:administrator,manager'],
+    ],
 ];
 /*
 |--------------------------------------------------------------------------

@@ -145,6 +145,164 @@ class ProductController extends Controller
         $this->redirect('/products');
     }
 
+    public function edit(): void
+    {
+        $currentUser = $this->authService->user();
+
+        $id = 0;
+
+        if (isset($_GET['id'])) {
+            $id = (int)$_GET['id'];
+        }
+
+        if ($id <= 0) {
+            $this->abort(404);
+        }
+
+        $product = $this->productModel->findByIdAndCompany(
+            $id,
+            (int)$currentUser['company_id']
+        );
+
+        if ($product === null) {
+            $this->abort(404);
+        }
+
+        $this->view('products/edit', [
+            'title' => 'Edit Product',
+            'product' => $product,
+            'categories' => $this->categoryModel->activeByCompany((int)$currentUser['company_id']),
+            'suppliers' => $this->supplierModel->activeByCompany((int)$currentUser['company_id']),
+            'errors' => [],
+            'old' => $product,
+            'units' => $this->units(),
+        ]);
+    }
+
+    public function update(): void
+    {
+        $currentUser = $this->authService->user();
+
+        $id = 0;
+
+        if (isset($_POST['id'])) {
+            $id = (int)$_POST['id'];
+        }
+
+        if ($id <= 0) {
+            $this->abort(404);
+        }
+
+        $product = $this->productModel->findByIdAndCompany(
+            $id,
+            (int)$currentUser['company_id']
+        );
+
+        if ($product === null) {
+            $this->abort(404);
+        }
+
+        $data = $this->getFormData();
+
+        $validator = new Validator($_POST);
+
+        $validator
+            ->required('name', 'Product name is required.')
+            ->max('name', 255, 'Product name must be maximum 255 characters.')
+            ->required('category_id', 'Category is required.')
+            ->required('unit', 'Unit is required.')
+            ->numeric('purchase_price', 'Purchase price must be numeric.')
+            ->numeric('selling_price', 'Selling price must be numeric.')
+            ->numeric('min_stock', 'Minimum stock must be numeric.');
+
+        $errors = $validator->all();
+
+        if (!in_array($data['unit'], $this->units(), true)) {
+            $errors[] = 'Invalid product unit.';
+        }
+
+        if ($data['category_id'] <= 0) {
+            $errors[] = 'Please select a valid category.';
+        }
+
+        if ($data['purchase_price'] < 0) {
+            $errors[] = 'Purchase price cannot be negative.';
+        }
+
+        if ($data['selling_price'] < 0) {
+            $errors[] = 'Selling price cannot be negative.';
+        }
+
+        if ($data['min_stock'] < 0) {
+            $errors[] = 'Minimum stock cannot be negative.';
+        }
+
+        if (
+            $this->productModel->barcodeExistsInCompanyExceptProduct(
+                $data['barcode'],
+                (int)$currentUser['company_id'],
+                $id
+            )
+        ) {
+            $errors[] = 'Product with this barcode already exists.';
+        }
+
+        if (!empty($errors)) {
+            $this->view('products/edit', [
+                'title' => 'Edit Product',
+                'product' => $product,
+                'categories' => $this->categoryModel->activeByCompany((int)$currentUser['company_id']),
+                'suppliers' => $this->supplierModel->activeByCompany((int)$currentUser['company_id']),
+                'errors' => $errors,
+                'old' => $data,
+                'units' => $this->units(),
+            ]);
+
+            return;
+        }
+
+        $data['company_id'] = (int)$currentUser['company_id'];
+
+        $this->productModel->update($id, $data);
+
+        Flash::success('Product updated successfully.');
+
+        $this->redirect('/products');
+    }
+
+    public function deactivate(): void
+    {
+        $currentUser = $this->authService->user();
+
+        $id = 0;
+
+        if (isset($_POST['id'])) {
+            $id = (int)$_POST['id'];
+        }
+
+        if ($id <= 0) {
+            $this->abort(404);
+        }
+
+        $product = $this->productModel->findByIdAndCompany(
+            $id,
+            (int)$currentUser['company_id']
+        );
+
+        if ($product === null) {
+            $this->abort(404);
+        }
+
+        $this->productModel->deactivate(
+            $id,
+            (int)$currentUser['company_id']
+        );
+
+        Flash::success('Product deactivated successfully.');
+
+        $this->redirect('/products');
+    }
+
     private function getFormData(): array
     {
         $supplierId = null;
@@ -153,10 +311,16 @@ class ProductController extends Controller
             $supplierId = (int)$_POST['supplier_id'];
         }
 
+        $barcode = trim((string)($_POST['barcode'] ?? ''));
+
+        if ($barcode === '') {
+            $barcode = null;
+        }
+
         return [
             'category_id' => (int)($_POST['category_id'] ?? 0),
             'supplier_id' => $supplierId,
-            'barcode' => trim((string)($_POST['barcode'] ?? '')),
+            'barcode' => $barcode,
             'name' => trim((string)($_POST['name'] ?? '')),
             'unit' => trim((string)($_POST['unit'] ?? '')),
             'purchase_price' => (float)($_POST['purchase_price'] ?? 0),

@@ -42,6 +42,7 @@
                             <th>Selling</th>
                             <th>Min Stock</th>
                             <th>Status</th>
+                            <th>Actions</th>
                         </tr>
                     </thead>
 
@@ -74,6 +75,38 @@
                                             Inactive
                                         </span>
                                     <?php endif; ?>
+                                </td>
+
+                                <td>
+                                    <div class="d-flex gap-2">
+
+                                        <a
+                                            href="/products/edit?id=<?= htmlspecialchars((string)$product['id']) ?>"
+                                            class="btn btn-sm btn-outline-primary">
+                                            Edit
+                                        </a>
+
+                                        <?php if ((int)$product['is_active'] === 1): ?>
+                                            <form
+                                                action="/products/deactivate"
+                                                method="POST"
+                                                onsubmit="return confirm('Are you sure you want to deactivate this product?');">
+
+                                                <input
+                                                    type="hidden"
+                                                    name="id"
+                                                    value="<?= htmlspecialchars((string)$product['id']) ?>">
+
+                                                <button
+                                                    type="submit"
+                                                    class="btn btn-sm btn-outline-danger">
+                                                    Deactivate
+                                                </button>
+
+                                            </form>
+                                        <?php endif; ?>
+
+                                    </div>
                                 </td>
 
                             </tr>
