@@ -12,6 +12,7 @@ use App\Models\Warehouse;
 use App\Services\AuthService;
 use App\Services\StockService;
 use App\Models\StockLevel;
+use App\Models\WarehouseTransaction;
 
 class StockController extends Controller
 {
@@ -20,12 +21,14 @@ class StockController extends Controller
     private StockService $stockService;
     private AuthService $authService;
     private StockLevel $stockLevelModel;
+    private WarehouseTransaction $warehouseTransactionModel;
 
     public function __construct()
     {
         $this->productModel = new Product();
         $this->warehouseModel = new Warehouse();
         $this->stockLevelModel = new StockLevel();
+        $this->warehouseTransactionModel = new WarehouseTransaction();
         $this->stockService = new StockService();
         $this->authService = new AuthService();
     }
@@ -427,5 +430,52 @@ class StockController extends Controller
         Flash::success('Stock transferred successfully.');
 
         $this->redirect('/stock/transfer');
+    }
+
+    public function history(): void
+    {
+        $currentUser = $this->authService->user();
+
+        $search = '';
+        $type = '';
+        $productId = '';
+        $warehouseId = '';
+
+        if (isset($_GET['search'])) {
+            $search = trim((string)$_GET['search']);
+        }
+
+        if (isset($_GET['type'])) {
+            $type = trim((string)$_GET['type']);
+        }
+
+        if (isset($_GET['product_id'])) {
+            $productId = trim((string)$_GET['product_id']);
+        }
+
+        if (isset($_GET['warehouse_id'])) {
+            $warehouseId = trim((string)$_GET['warehouse_id']);
+        }
+
+        $filters = [
+            'search' => $search,
+            'type' => $type,
+            'product_id' => $productId,
+            'warehouse_id' => $warehouseId,
+        ];
+
+        $transactions = $this->warehouseTransactionModel->allByCompany(
+            (int)$currentUser['company_id'],
+            $filters
+        );
+
+        $this->view('stock/history', [
+            'title' => 'Stock History',
+            'transactions' => $transactions,
+            'products' => $this->productModel->activeByCompany((int)$currentUser['company_id']),
+            'warehouses' => $this->warehouseModel->activeByCompany((int)$currentUser['company_id']),
+            'types' => $this->warehouseTransactionModel->types(),
+            'filters' => $filters,
+        ]);
     }
 }

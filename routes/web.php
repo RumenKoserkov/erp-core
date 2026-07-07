@@ -283,6 +283,13 @@ return [
         'action' => [StockController::class, 'index'],
         'middleware' => ['auth', 'role:administrator,manager,employee'],
     ],
+
+    [
+        'method' => 'GET',
+        'uri' => '/stock/history',
+        'action' => [StockController::class, 'history'],
+        'middleware' => ['auth', 'role:administrator,manager,employee'],
+    ],
     [
         'method' => 'GET',
         'uri' => '/stock/in',
