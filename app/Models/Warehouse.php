@@ -173,4 +173,22 @@ class Warehouse extends Model
             $companyId,
         ]);
     }
+
+    public function activeByCompany(int $companyId): array
+    {
+        $stmt = $this->db->prepare("
+        SELECT
+            id,
+            name,
+            code
+        FROM warehouses
+        WHERE company_id = ?
+        AND is_active = 1
+        ORDER BY name ASC
+    ");
+
+        $stmt->execute([$companyId]);
+
+        return $stmt->fetchAll();
+    }
 }

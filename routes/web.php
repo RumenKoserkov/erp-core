@@ -8,6 +8,7 @@ use App\Controllers\SupplierController;
 use App\Controllers\CategoryController;
 use App\Controllers\WarehouseController;
 use App\Controllers\ProductController;
+use App\Controllers\StockController;
 
 return [
     [
@@ -273,6 +274,21 @@ return [
         'uri' => '/products/deactivate',
         'action' => [ProductController::class, 'deactivate'],
         'middleware' => ['auth', 'role:administrator,manager'],
+    ],
+
+    // Stock CRUD
+    [
+        'method' => 'GET',
+        'uri' => '/stock/in',
+        'action' => [StockController::class, 'in'],
+        'middleware' => ['auth', 'role:administrator,manager,employee'],
+    ],
+
+    [
+        'method' => 'POST',
+        'uri' => '/stock/in/store',
+        'action' => [StockController::class, 'storeIn'],
+        'middleware' => ['auth', 'role:administrator,manager,employee'],
     ],
 ];
 /*

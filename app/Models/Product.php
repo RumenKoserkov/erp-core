@@ -231,4 +231,23 @@ class Product extends Model
             $companyId,
         ]);
     }
+
+    public function activeByCompany(int $companyId): array
+    {
+        $stmt = $this->db->prepare("
+        SELECT
+            id,
+            internal_code,
+            name,
+            unit
+        FROM products
+        WHERE company_id = ?
+        AND is_active = 1
+        ORDER BY name ASC
+    ");
+
+        $stmt->execute([$companyId]);
+
+        return $stmt->fetchAll();
+    }
 }
