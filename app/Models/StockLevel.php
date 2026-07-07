@@ -11,37 +11,40 @@ class StockLevel extends Model
     public function allByCompany(int $companyId, string $search = ''): array
     {
         $sql = "
-            SELECT
-                stock_levels.id,
-                stock_levels.quantity,
-                stock_levels.created_at,
-                stock_levels.updated_at,
+        SELECT
+            stock_levels.id,
+            stock_levels.quantity,
+            stock_levels.created_at,
+            stock_levels.updated_at,
 
-                products.name AS product_name,
-                products.internal_code,
-                products.barcode,
-                products.unit,
+            products.name AS product_name,
+            products.internal_code,
+            products.barcode,
+            products.unit,
+            products.min_stock,
+            products.is_active AS product_is_active,
 
-                warehouses.name AS warehouse_name,
-                warehouses.code AS warehouse_code
-            FROM stock_levels
-            INNER JOIN products ON stock_levels.product_id = products.id
-            INNER JOIN warehouses ON stock_levels.warehouse_id = warehouses.id
-            WHERE stock_levels.company_id = ?
-        ";
+            warehouses.name AS warehouse_name,
+            warehouses.code AS warehouse_code,
+            warehouses.is_active AS warehouse_is_active
+        FROM stock_levels
+        INNER JOIN products ON stock_levels.product_id = products.id
+        INNER JOIN warehouses ON stock_levels.warehouse_id = warehouses.id
+        WHERE stock_levels.company_id = ?
+    ";
 
         $params = [$companyId];
 
         if ($search !== '') {
             $sql .= "
-                AND (
-                    products.name LIKE ?
-                    OR products.internal_code LIKE ?
-                    OR products.barcode LIKE ?
-                    OR warehouses.name LIKE ?
-                    OR warehouses.code LIKE ?
-                )
-            ";
+            AND (
+                products.name LIKE ?
+                OR products.internal_code LIKE ?
+                OR products.barcode LIKE ?
+                OR warehouses.name LIKE ?
+                OR warehouses.code LIKE ?
+            )
+        ";
 
             $searchTerm = '%' . $search . '%';
 
@@ -53,8 +56,8 @@ class StockLevel extends Model
         }
 
         $sql .= "
-            ORDER BY warehouses.name ASC, products.name ASC
-        ";
+        ORDER BY warehouses.name ASC, products.name ASC
+    ";
 
         $stmt = $this->db->prepare($sql);
         $stmt->execute($params);

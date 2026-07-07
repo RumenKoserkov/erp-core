@@ -11,6 +11,7 @@ use App\Models\Product;
 use App\Models\Warehouse;
 use App\Services\AuthService;
 use App\Services\StockService;
+use App\Models\StockLevel;
 
 class StockController extends Controller
 {
@@ -18,13 +19,37 @@ class StockController extends Controller
     private Warehouse $warehouseModel;
     private StockService $stockService;
     private AuthService $authService;
+    private StockLevel $stockLevelModel;
 
     public function __construct()
     {
         $this->productModel = new Product();
         $this->warehouseModel = new Warehouse();
+        $this->stockLevelModel = new StockLevel();
         $this->stockService = new StockService();
         $this->authService = new AuthService();
+    }
+
+    public function index(): void
+    {
+        $currentUser = $this->authService->user();
+
+        $search = '';
+
+        if (isset($_GET['search'])) {
+            $search = trim((string)$_GET['search']);
+        }
+
+        $stockLevels = $this->stockLevelModel->allByCompany(
+            (int)$currentUser['company_id'],
+            $search
+        );
+
+        $this->view('stock/index', [
+            'title' => 'Stock Levels',
+            'stockLevels' => $stockLevels,
+            'search' => $search,
+        ]);
     }
 
     public function in(): void

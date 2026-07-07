@@ -279,6 +279,12 @@ return [
     // Stock CRUD
     [
         'method' => 'GET',
+        'uri' => '/stock',
+        'action' => [StockController::class, 'index'],
+        'middleware' => ['auth', 'role:administrator,manager,employee'],
+    ],
+    [
+        'method' => 'GET',
         'uri' => '/stock/in',
         'action' => [StockController::class, 'in'],
         'middleware' => ['auth', 'role:administrator,manager,employee'],

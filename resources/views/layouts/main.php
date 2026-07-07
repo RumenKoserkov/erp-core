@@ -117,8 +117,20 @@ if (isset($title)) {
                             </li>
 
                             <li class="nav-item">
+                                <a href="/stock" class="nav-link">
+                                    Stock
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
                                 <a href="/stock/in" class="nav-link">
                                     Stock In
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a href="/stock/out" class="nav-link">
+                                    Stock Out
                                 </a>
                             </li>
 
